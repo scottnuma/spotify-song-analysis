@@ -3,7 +3,7 @@ import sys
 import spotipy
 import spotipy.util as util
 import numpy as np
-import matplotlib.pyplot as plt
+import json
 
 # Retrieve secrets.
 
@@ -32,18 +32,20 @@ if not token:
     print("Unable to get token for", username)
     throw -1
 
-# In[5]:
-
 # Initialize the portal into Spotify
 sp = spotipy.Spotify(auth=token)
 
-sp.current_user()
-user_name = 'newmascot'
-
 class Song:
-    def __init__(this, id, user_name):
-        this.id = id
+    def __init__(this, raw, user_name):
+        this.id = raw['id']
+        this.name = raw['name']
         this.user_name = user_name
+
+    def __str__(this):
+        return this.name
+
+    def __repr__(this):
+        return ("Song(%s)" % this.name)
 
 def populate(sp, songs):
     """Batch populate songs with its audio features"""
@@ -68,48 +70,13 @@ def populate(sp, songs):
         song.duration_ms = feature_set['duration_ms']
         song.time_signature = feature_set['time_signature']
 
-class SongGroup:
-    # Features that are represented by a number
-    numerical_features = {
-        'acousticness',
-        'danceability',
-        'duration_ms',
-        'energy',
-        'instrumentalness',
-        'key',
-        'liveness',
-        'loudness',
-        'mode',
-        'speechiness',
-        'tempo',
-        'time_signature',
-        'valence'
-    }
 
-    # the range of numerical features that are not (0,1)
-    feature_range = {
-        'key':(0,11),
-        'loudness':(-60, 0),
-        'tempo':(0,250),
-        'time_signature':(0,8),  
-        'duration_ms':(0,600000)
-    }
-    
-    def __init__(this, output):
-        """ids (list of song ids as strings): songs to be included in the the SongGroup"""
-        this.raw = output
-        songs = output['items']
-        this.song_names = [song['name'] for song in songs]
-        this.song_ids = [song['id'] for song in songs]
-        feature_aggregate = sp.audio_features(this.song_ids)
-        this.feature_names = feature_aggregate[0].keys()
-        
-        this.feature_dict = dict()
-        for feature in this.feature_names:
-            this.feature_dict[feature] = np.array([song[feature] for song in feature_aggregate])
-            
-    def __str__(self):
-        return "SongGroup"
-
+user_name = sp.current_user()['id']
 time_frames = ['short_term', 'medium_term', 'long_term']
-songGroup = SongGroup(sp.current_user_top_tracks(limit=50, time_range='long_term'))
+raw_top_tracks = sp.current_user_top_tracks(limit=50, time_range='long_term')
+top_tracks = [Song(track, user_name) for track in raw_top_tracks['items']]
+populate(sp, top_tracks)
+
+with open('top_tracks.json', 'w') as fp:
+    json.dump([track.__dict__ for track in top_tracks], fp, indent=4)
+print("Finished executing")
