@@ -1,3 +1,4 @@
+*.swp
 set-env.sh
 tags
 .cache-*
