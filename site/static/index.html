@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
-<style> 
-rect.bar { fill: steelblue; }
-</style>
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
 <body>
 <!-- load the d3.js library -->        
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -12,4 +13,6 @@ rect.bar { fill: steelblue; }
 <select id="feature">
 </select>
 <svg></svg>
+<div id="description"></div>
+<div>Description found in the <a href="https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/">Spotify API documentation</a></div>
 </body>
