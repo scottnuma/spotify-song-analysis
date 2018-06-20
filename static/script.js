@@ -55,7 +55,7 @@ var feature_bounds = {
 }
 
 function loadGraphs(trait, time_frame_a, time_frame_b) {
-  d3.json("/static/newmascot.json", function(raw_data) { 
+  d3.json("/spotify-song-analysis/static/newmascot.json", function(raw_data) { 
     time_frames = [time_frame_a, time_frame_b];
 
     var values = [];
