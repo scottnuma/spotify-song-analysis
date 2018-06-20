@@ -54,9 +54,9 @@ var feature_bounds = {
   'valence': [0, 1.0],
 }
 
-function loadGraph(trait) {
-  d3.json("/static/top_tracks.json", function(data) { 
-    var values = data.map(x => x[trait]);
+function loadGraph(trait, time_frame) {
+  d3.json("/static/newmascot.json", function(data) { 
+    var values = data['top_tracks'][time_frame].map(x => x[trait]);
 
     var bound
     if (trait in feature_bounds) {
@@ -134,8 +134,12 @@ window.onload = function() {
     feature.add(option);
   }
 
-  feature.onchange = function() {
-    loadGraph(feature.value);
+  let time_frame = document.getElementById("time_frame")
+
+  reload_graph = function() {
+    loadGraph(feature.value, time_frame.value);
   }
-  loadGraph("key");
+  feature.onchange = reload_graph
+  time_frame.onchange = reload_graph
+  loadGraph("key", "short_term");
 }
