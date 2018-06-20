@@ -10,13 +10,29 @@
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="script.js"> </script>
 
-<select id="time_frame">
-  <option value="short_term">4 weeks</option>
-  <option value="medium_term">6 months</option>
-  <option value="long_term">Years</option>
-</select>
-<select id="feature">
-</select>
+
+<div>
+  Feature:
+  <select id="feature">
+  </select>
+</div>
+
+<div>
+  Time Frame A:
+  <select id="time_frame_a">
+    <option value="short_term">4 weeks</option>
+    <option value="medium_term">6 months</option>
+    <option value="long_term">Years</option>
+  </select>
+</div>
+<div>
+  Time Frame B:
+  <select id="time_frame_b">
+    <option value="short_term">4 weeks</option>
+    <option value="medium_term">6 months</option>
+    <option value="long_term">Years</option>
+  </select>
+</div>
 <svg></svg>
 <div id="description"></div>
 <div>Description found in the <a href="https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/">Spotify API documentation</a></div>

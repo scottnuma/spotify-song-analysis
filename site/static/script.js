@@ -54,9 +54,105 @@ var feature_bounds = {
   'valence': [0, 1.0],
 }
 
+function loadGraphs(trait, time_frame_a, time_frame_b) {
+  d3.json("/static/newmascot.json", function(raw_data) { 
+    var values_a = raw_data['top_tracks'][time_frame_a].map(x => x[trait]);
+    var values_b = raw_data['top_tracks'][time_frame_b].map(x => x[trait]);
+    var values_both = values_a.concat(values_b);
+
+    var bound
+    if (trait in feature_bounds) {
+      bound = feature_bounds[trait]
+    } else { 
+      let max = d3.max(values_both);
+      let min = d3.min(values_both);
+      bound = [min, max];
+    }
+
+    var x = d3.scale.linear()
+          .domain(bound)
+          .range([0, width]);
+
+    var numBins = 10;
+
+    var data_a = d3.layout.histogram()
+        .bins(x.ticks(numBins))
+        (values_a);
+
+    var data_b = d3.layout.histogram()
+        .bins(x.ticks(numBins))
+        (values_b);
+
+    yMax_a = d3.max(data_a, function(d){return d.length});
+    yMax_b = d3.max(data_b, function(d){return d.length});
+    var yMax = Math.max(yMax_a, yMax_b);
+    var y = d3.scale.linear()
+        .domain([0, yMax])
+        .range([height, 0]);
+
+    d3.selectAll("svg > *").remove();
+    // define the canvas of the graph
+    var svg = d3.select("body").select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var bar = svg.selectAll(".bar_a")
+        .data(data_a)
+      .enter().append("g")
+        .attr("class", "bar_a")
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+    // Create the rectangles of the histogram
+    bar.append("rect")
+        .attr("x", 1)
+        .attr("width", (x(data_a[0].dx) - x(0)) - 1)
+        .attr("height", function(d) { return height - y(d.y); })
+        .attr("fill", function(d) { return d3.rgb(color) })
+        .attr("fill-opacity", .5);
+
+    var bar = svg.selectAll(".bar_b")
+        .data(data_b)
+      .enter().append("g")
+        .attr("class", "bar_b")
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+    // Create the rectangles of the histogram
+    bar.append("rect")
+        .attr("x", 1)
+        .attr("width", (x(data_b[0].dx) - x(0)) - 1)
+        .attr("height", function(d) { return height - y(d.y); })
+        .attr("fill", function(d) { return d3.rgb("blue") })
+        .attr("fill-opacity", .5);
+
+    
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+  });
+
+  // Load the description
+  document.getElementById("description").innerHTML = featureDescriptions[feature.value]
+}
+
 function loadGraph(trait, time_frame) {
-  d3.json("/static/newmascot.json", function(data) { 
-    var values = data['top_tracks'][time_frame].map(x => x[trait]);
+  d3.json("/static/newmascot.json", function(raw_data) { 
+    var values = raw_data['top_tracks'][time_frame].map(x => x[trait]);
 
     var bound
     if (trait in feature_bounds) {
@@ -134,12 +230,14 @@ window.onload = function() {
     feature.add(option);
   }
 
-  let time_frame = document.getElementById("time_frame")
+  let time_frame_a = document.getElementById("time_frame_a")
+  let time_frame_b = document.getElementById("time_frame_b")
 
   reload_graph = function() {
-    loadGraph(feature.value, time_frame.value);
+    loadGraphs(feature.value, time_frame_a.value, time_frame_b.value);
   }
   feature.onchange = reload_graph
-  time_frame.onchange = reload_graph
-  loadGraph("key", "short_term");
+  time_frame_a.onchange = reload_graph
+  time_frame_b.onchange = reload_graph
+  loadGraphs("key", "short_term", "long_term");
 }
