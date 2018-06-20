@@ -156,5 +156,5 @@ window.onload = function() {
   feature.onchange = reload_graph
   time_frame_a.onchange = reload_graph
   time_frame_b.onchange = reload_graph
-  loadGraphs("key", "short_term", "long_term");
+  loadGraphs("danceability", "short_term", "short_term");
 }
