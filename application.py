@@ -16,21 +16,21 @@ if 'REDIRECT_URI' in os.environ:
 
 SCOPE = 'user-library-read user-top-read playlist-read-private playlist-read-collaborative'
 
-app = Flask(__name__, static_folder='static')
+application = Flask(__name__, static_folder='static')
 
-@app.route('/')
+@application.route('/')
 def hello_world():
-    return 'hello world!'
+    return 'hello Ender!'
 
-@app.route('/analysis')
+@application.route('/analysis')
 def analysis():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(application.static_folder, 'index.html')
 
-@app.route('/static/<path:path>')
+@application.route('/static/<path:path>')
 def sender(path):
     return send_from_directory(app.static_folder, path)
 
-@app.route('/login/')
+@application.route('/login/')
 def register():
     sp_oauth = oauth2.SpotifyOAuth(
             CLIENT_ID,
@@ -40,7 +40,7 @@ def register():
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
 
-@app.route('/token')
+@application.route('/token')
 def receive_token():
     code = request.args.get('code')
     sp_oauth = oauth2.SpotifyOAuth(
@@ -55,4 +55,4 @@ def receive_token():
     return redirect("http://localhost:8000/static/index.html?username0=%s" % user.username)
 
 if __name__ == "__main__":
-    app.run()
+    application.run()
