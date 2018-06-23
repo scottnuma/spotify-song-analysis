@@ -1,6 +1,7 @@
 *.swp
 set-env.sh
 tags
+set-elb-env.sh
 .cache-*
 __pycache__/
 virt
