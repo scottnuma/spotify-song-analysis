@@ -54,70 +54,26 @@ var feature_bounds = {
   'valence': [0, 1.0],
 }
 
-function loadGraphs(trait, time_frame_a, time_frame_b, username) {
-  filepath = "/static/user_tracks/" + username + ".json"
-  d3.json(filepath, function(raw_data) { 
-    time_frames = [time_frame_a, time_frame_b];
+var numBins = 10;
 
-    var values = [];
-    for (i = 0; i < time_frames.length; i++) {
-      values[i] = raw_data['top_tracks'][time_frames[i]].map(x => x[trait]);
-    }
-
-    var bound
-    if (trait in feature_bounds) {
-      bound = feature_bounds[trait]
-    } else { 
-      let max = Math.max(d3.max(values[0]), d3.max(values[1]));
-      let min = Math.min(d3.min(values[0]), d3.min(values[1]));
-      bound = [min, max];
-    }
-
-    var x = d3.scale.linear()
-          .domain(bound)
-          .range([0, width]);
-
-    var numBins = 10;
-
-    var data = []
-    for (i = 0; i < values.length; i++) {
-      data[i] = d3.layout.histogram()
-          .bins(x.ticks(numBins))
-          (values[i]);
-    }
-
-    var yMax = d3.max(data[0], function(d){return d.length});
-    yMax = Math.max(yMax, d3.max(data[1], function(d){return d.length}));
-    var y = d3.scale.linear()
-        .domain([0, yMax])
-        .range([height, 0]);
-
-    d3.selectAll("svg > *").remove();
-    // define the canvas of the graph
-    var svg = d3.select("body").select("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var bar;
-    for (i = 0; i < data.length; i++) {
-      bar = svg.selectAll(".bar" + i)
-          .data(data[i])
+function gen_graph(svg, data, i, height, color, x, y) {
+  let bar = svg.selectAll(".bar" + i)
+        .data(data)
         .enter().append("g")
-          .attr("class", "bar" + i)
-          .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+        .attr("class", "bar" + i)
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 
-      // Create the rectangles of the histogram
-      bar.append("rect")
-          .attr("x", 1)
-          .attr("width", (x(data[i][0].dx) - x(0)) - 1)
-          .attr("height", function(d) { return height - y(d.y); })
-          .attr("fill", function(d) { return d3.rgb(colors[i]) })
-          .attr("fill-opacity", .5);
-    }
+  // Create the rectangles of the histogram
+  bar.append("rect")
+      .attr("x", 1)
+      .attr("width", (x(data[0].dx) - x(0)) - 1)
+      .attr("height", function(d) { return height - y(d.y); })
+      .attr("fill", function(d) { return d3.rgb(color) })
+      .attr("fill-opacity", .5);
+}
 
-    var xAxis = d3.svg.axis()
+function add_axes(svg, x, y, height) {
+    let xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom");
 
@@ -126,13 +82,117 @@ function loadGraphs(trait, time_frame_a, time_frame_b, username) {
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
-    var yAxis = d3.svg.axis()
+    let yAxis = d3.svg.axis()
         .scale(y)
         .orient("left");
 
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
+}
+
+function loadSingleGraph(username, trait, time_frame) {
+  filepath = "/static/user_tracks/" + username + ".json"
+  d3.json(filepath, function(raw_data) { 
+    values = raw_data['top_tracks'][time_frame].map(x => x[trait]);
+
+    let bound
+
+    if (trait in feature_bounds) {
+      bound = feature_bounds[trait]
+    } else { 
+      let max = d3.max(values[0])
+      let min = d3.min(values[0])
+      bound = [min, max];
+    }
+
+    let x = d3.scale.linear()
+          .domain(bound)
+          .range([0, width]);
+
+
+    data = d3.layout.histogram()
+          .bins(x.ticks(numBins))
+          (values);
+
+    let yMax = d3.max(data, function(d){return d.length});
+    let y = d3.scale.linear()
+        .domain([0, yMax])
+        .range([height, 0]);
+
+    d3.selectAll("svg > *").remove();
+    // define the canvas of the graph
+    let svg = d3.select("body").select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    gen_graph(svg, data, i, height, colors[0], x, y);
+
+    let xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    add_axes(svg, x, y, height);
+  });
+
+  // Load the description
+  document.getElementById("description").innerHTML = featureDescriptions[feature.value]
+}
+
+
+function loadGraphs(trait, time_frame_a, time_frame_b, username) {
+  filepath = "/static/user_tracks/" + username + ".json"
+  d3.json(filepath, function(raw_data) { 
+    time_frames = [time_frame_a, time_frame_b];
+
+    let values = [];
+    for (i = 0; i < time_frames.length; i++) {
+      values[i] = raw_data['top_tracks'][time_frames[i]].map(x => x[trait]);
+    }
+
+    let bound
+    if (trait in feature_bounds) {
+      bound = feature_bounds[trait]
+    } else { 
+      let max = Math.max(d3.max(values[0]), d3.max(values[1]));
+      let min = Math.min(d3.min(values[0]), d3.min(values[1]));
+      bound = [min, max];
+    }
+
+    let x = d3.scale.linear()
+          .domain(bound)
+          .range([0, width]);
+
+    let data = []
+    for (i = 0; i < values.length; i++) {
+      data[i] = d3.layout.histogram()
+          .bins(x.ticks(numBins))
+          (values[i]);
+    }
+
+    let yMax = d3.max(data[0], function(d){return d.length});
+    yMax = Math.max(yMax, d3.max(data[1], function(d){return d.length}));
+    let y = d3.scale.linear()
+        .domain([0, yMax])
+        .range([height, 0]);
+
+    d3.selectAll("svg > *").remove();
+    // define the canvas of the graph
+    let svg = d3.select("body").select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    let bar;
+    for (i = 0; i < data.length; i++) {
+      gen_graph(svg, data[i], i, height, colors[i], x, y);
+    }
+
+    add_axes(svg, x, y, height);
   });
 
   // Load the description
