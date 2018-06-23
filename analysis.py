@@ -2,7 +2,6 @@ import os
 import sys
 import spotipy
 import spotipy.util as util
-import numpy as np
 import json
 
 SCOPE = 'user-library-read user-top-read playlist-read-private playlist-read-collaborative'

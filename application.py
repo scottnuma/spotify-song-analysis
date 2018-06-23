@@ -20,7 +20,7 @@ app = Flask(__name__, static_folder='static')
 
 @app.route('/')
 def hello_world():
-    return 'hello'
+    return 'hello world!'
 
 @app.route('/analysis')
 def analysis():
@@ -55,4 +55,4 @@ def receive_token():
     return redirect("http://localhost:8000/static/index.html?username0=%s" % user.username)
 
 if __name__ == "__main__":
-    app.run(port=8000)
+    app.run()
