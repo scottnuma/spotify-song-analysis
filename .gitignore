@@ -2,3 +2,4 @@
 set-env.sh
 tags
 .cache-*
+__pycache__/
