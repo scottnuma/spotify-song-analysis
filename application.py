@@ -5,14 +5,14 @@ import analysis
 
 from flask import Flask, render_template, redirect, request, send_from_directory
 
-assert 'CLIENT_ID' in os.environ
-CLIENT_ID = os.environ['CLIENT_ID']
+if 'CLIENT_ID' in os.environ:
+    CLIENT_ID = os.environ['CLIENT_ID']
 
-assert 'CLIENT_SECRET' in os.environ
-CLIENT_SECRET = os.environ['CLIENT_SECRET']
+if 'CLIENT_SECRET' in os.environ:
+    CLIENT_SECRET = os.environ['CLIENT_SECRET']
 
-assert 'REDIRECT_URI' in os.environ
-REDIRECT_URI = os.environ['REDIRECT_URI']
+if 'REDIRECT_URI' in os.environ:
+    REDIRECT_URI = os.environ['REDIRECT_URI']
 
 SCOPE = 'user-library-read user-top-read playlist-read-private playlist-read-collaborative'
 
