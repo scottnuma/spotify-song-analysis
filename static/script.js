@@ -54,8 +54,9 @@ var feature_bounds = {
   'valence': [0, 1.0],
 }
 
-function loadGraphs(trait, time_frame_a, time_frame_b) {
-  d3.json("/static/newmascot.json", function(raw_data) { 
+function loadGraphs(trait, time_frame_a, time_frame_b, username) {
+  filepath = "/static/user_tracks/" + username + ".json"
+  d3.json(filepath, function(raw_data) { 
     time_frames = [time_frame_a, time_frame_b];
 
     var values = [];
@@ -150,11 +151,15 @@ window.onload = function() {
   let time_frame_a = document.getElementById("time_frame_a")
   let time_frame_b = document.getElementById("time_frame_b")
 
+  var parsedUrl = new URL(window.location.href);
+  username0 = parsedUrl.searchParams.get("username0");
+  console.log(username0); 
+
   reload_graph = function() {
-    loadGraphs(feature.value, time_frame_a.value, time_frame_b.value);
+    loadGraphs(feature.value, time_frame_a.value, time_frame_b.value, username0);
   }
   feature.onchange = reload_graph
   time_frame_a.onchange = reload_graph
   time_frame_b.onchange = reload_graph
-  loadGraphs("key", "short_term", "long_term");
+  loadGraphs("key", "short_term", "long_term", username0);
 }
