@@ -6,6 +6,7 @@ import json
 
 SCOPE = 'user-library-read user-top-read playlist-read-private playlist-read-collaborative'
 
+
 class User:
     def __init__(this, token):
 
@@ -14,16 +15,18 @@ class User:
         time_frames = ['short_term', 'medium_term', 'long_term']
         this.top_tracks = dict()
         for time_frame in time_frames:
-            raw_top_tracks = sp.current_user_top_tracks(limit=50, time_range=time_frame)
-            this.top_tracks[time_frame] = [Song(track) for track in raw_top_tracks['items']]
+            raw_top_tracks = sp.current_user_top_tracks(
+                limit=50, time_range=time_frame)
+            this.top_tracks[time_frame] = [
+                Song(track) for track in raw_top_tracks['items']]
             populate(sp, this.top_tracks[time_frame])
 
     def json(this):
-        return json.dumps(this, 
-                default=lambda o: o.__dict__, 
-                sort_keys=True, 
-                indent=4, 
-                separators=(',',': '))
+        return json.dumps(this,
+                          default=lambda o: o.__dict__,
+                          sort_keys=True,
+                          indent=4,
+                          separators=(',', ': '))
 
     def record(this):
         curr_dir = os.path.dirname(os.path.realpath(__file__))
@@ -33,6 +36,7 @@ class User:
         with open(filepath, 'w') as f:
             f.write(this.json())
 
+
 class Song:
     def __init__(this, raw):
         this.id = raw['id']
@@ -40,6 +44,7 @@ class Song:
 
     def __str__(this):
         return this.name
+
 
 def populate(sp, songs):
     """Batch populate songs with its audio features"""
@@ -66,6 +71,7 @@ def populate(sp, songs):
             song.time_signature = feature_set['time_signature']
         else:
             print(feature_set, features, org)
+
 
 if __name__ == "__main__":
     user = User("newmascot")
