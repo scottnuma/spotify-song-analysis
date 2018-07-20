@@ -18,41 +18,47 @@ SCOPE = 'user-library-read user-top-read playlist-read-private playlist-read-col
 
 application = Flask(__name__, static_folder='static')
 
+
 @application.route('/')
 def hello_world():
     return 'hello Ender!'
+
 
 @application.route('/analysis')
 def analysis():
     return send_from_directory(application.static_folder, 'index.html')
 
+
 @application.route('/static/<path:path>')
 def sender(path):
     return send_from_directory(app.static_folder, path)
 
+
 @application.route('/login/')
 def register():
     sp_oauth = oauth2.SpotifyOAuth(
-            CLIENT_ID,
-            CLIENT_SECRET,
-            REDIRECT_URI,
-            scope=SCOPE)
+        CLIENT_ID,
+        CLIENT_SECRET,
+        REDIRECT_URI,
+        scope=SCOPE)
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
+
 
 @application.route('/token')
 def receive_token():
     code = request.args.get('code')
     sp_oauth = oauth2.SpotifyOAuth(
-            CLIENT_ID,
-            CLIENT_SECRET,
-            REDIRECT_URI,
-            scope=SCOPE)
+        CLIENT_ID,
+        CLIENT_SECRET,
+        REDIRECT_URI,
+        scope=SCOPE)
 
     token_info = sp_oauth.get_access_token(code)
     user = analysis.User(token_info['access_token'])
     user.record()
     return redirect("http://localhost:8000/static/index.html?username0=%s" % user.username)
+
 
 if __name__ == "__main__":
     application.run()
