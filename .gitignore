@@ -5,6 +5,7 @@ set-elb-env.sh
 .cache-*
 __pycache__/
 virt
+venv/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
